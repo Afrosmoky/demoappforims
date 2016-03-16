@@ -1,0 +1,8 @@
+{% extends 'BloggerBlogBundle::layout.html.twig' %}
+
+{% block title %}Add Blog Post{% endblock%}
+
+{% block body %}
+    <h1>Add blog post</h1>
+    {% include 'BloggerBlogBundle:Blog:form.html.twig' with { 'form': form } %}
+{% endblock %}

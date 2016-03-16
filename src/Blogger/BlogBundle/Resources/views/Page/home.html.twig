@@ -1,0 +1,30 @@
+{% extends 'BloggerBlogBundle::layout.html.twig' %}
+
+{% block title %}Post list{% endblock %}
+
+{% block body %}
+	{% for blog in blogs %}
+        <article class="blog">
+            <div class="date"><time datetime="{{ blog.created|date('c') }}">{{ blog.created|date('l, F j, Y') }}</time></div>
+            <header>
+                <h2><a href="{{ path('BloggerBlogBundle_blog_show', { 'id': blog.id }) }}">{{ blog.title }}</a></h2>
+            </header>
+            
+            <div class="snippet">
+                <p>{{ blog.blog(500) }}</p>
+                <p class="continue"><a href="{{ path('BloggerBlogBundle_blog_show', { 'id': blog.id }) }}">Continue reading...</a></p>
+            </div>
+
+            <footer class="meta">
+                <p>Comments: -</p>
+                <p>Posted by <span class="highlight">{{blog.author}}</span> at {{ blog.created|date('h:iA') }}</p>
+            </footer>
+        </article>
+    {% else %}
+        <p>There are no blog entries for symblog</p>
+    {% endfor %}
+    <section class"add-blog">
+    	<h3>Add Blog Post</h3>
+            {{ render(controller('BloggerBlogBundle:Blog:new')) }}
+    </section>
+{% endblock %}

@@ -1,0 +1,84 @@
+<?php
+
+namespace Blogger\BlogBundle\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Blogger\BlogBundle\Entity\Comment;
+use Blogger\BlogBundle\Form\CommentType;
+
+/**
+ * Comment controller.
+ */
+class CommentController extends Controller
+{
+	/**
+	 * New comment, this action is not present separately, it is generated in blog show action
+	 * @param unknown $blog_id
+	 */
+	public function newAction($blog_id)
+	{
+		$blog = $this->getBlog($blog_id);
+
+		$comment = new Comment();
+		$comment->setBlog($blog);
+		$form   = $this->createForm(CommentType::class, $comment);
+
+		return $this->render('BloggerBlogBundle:Comment:form.html.twig', array(
+				'comment' => $comment,
+				'form'   => $form->createView()
+		));
+	}
+
+	/**
+	 * Create comment for given blog
+	 * @param unknown $blog_id
+	 */
+	public function createAction($blog_id)
+	{
+		$blog = $this->getBlog($blog_id);
+
+		$comment  = new Comment();
+		$comment->setBlog($blog);
+		$request = $this->getRequest();
+		$form    = $this->createForm(CommentType::class, $comment);
+		$form->handleRequest($request);
+
+		if ($form->isValid()) {
+            $em = $this->getDoctrine()
+                       ->getManager();
+            $em->persist($comment);
+            $em->flush();
+
+            return $this->redirect($this->generateUrl('BloggerBlogBundle_blog_show', array(
+                'id' => $comment->getBlog()->getId())) .
+                '#comment-' . $comment->getId()
+            );
+        }
+
+		return $this->render('BloggerBlogBundle:Comment:create.html.twig', array(
+				'comment' => $comment,
+				'active'  => 'blog',
+				'form'    => $form->createView()
+		));
+	}
+
+	/**
+	 * Get blog for comment object
+	 * @param unknown $blog_id
+	 * @return unknown
+	 */
+	protected function getBlog($blog_id)
+	{
+		$em = $this->getDoctrine()
+		->getManager();
+
+		$blog = $em->getRepository('BloggerBlogBundle:Blog')->find($blog_id);
+
+		if (!$blog) {
+			throw $this->createNotFoundException('Unable to find Blog post.');
+		}
+
+		return $blog;
+	}
+
+}
